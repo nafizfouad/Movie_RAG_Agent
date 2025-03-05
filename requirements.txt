@@ -1,0 +1,16 @@
+langchain>=0.1.0
+langchain-openai>=0.0.2
+langchain-community>=0.0.11
+langchain-chroma>=0.0.1
+chromadb>=0.4.22
+openai>=1.12.0
+tiktoken>=0.5.2
+duckduckgo-search>=4.1.1
+google-api-python-client>=2.114.0
+streamlit>=1.30.0
+streamlit-chat>=0.1.1
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+sentence-transformers>=2.2.2
