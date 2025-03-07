@@ -1,27 +1,34 @@
 """
 Search tool for retrieving information from the web.
 """
-import os
-from typing import List, Dict, Any, Optional, Type
-from pydantic import BaseModel, Field
-from pydantic import BaseModel, Field
+import re
+import requests
 
+from bs4 import BeautifulSoup
+from typing import List, Dict, Any, Type
+from pydantic import BaseModel, Field
 from langchain.tools.base import BaseTool
 from duckduckgo_search import DDGS
 
 class WebSearchInput(BaseModel):
+
     """Input for web search."""
+
     query: str = Field(..., description="The search query to use.")
     num_results: int = Field(5, description="Number of search results to return.")
 
 class WebSearchTool(BaseTool):
+
     """Tool for searching the web using DuckDuckGo."""
+
     name: str = "web_search"
     description: str = "Search for information on the web using DuckDuckGo."
     args_schema: Type[BaseModel] = WebSearchInput
     
     def _run(self, query: str, num_results: int = 5) -> List[Dict[str, Any]]:
+
         """Run the web search tool."""
+
         try:
             with DDGS() as ddgs:
                 results = list(ddgs.text(query, max_results=num_results))
@@ -41,21 +48,22 @@ class WebSearchTool(BaseTool):
             return [{"error": f"Error during web search: {str(e)}"}]
 
     async def _arun(self, query: str, num_results: int = 5) -> List[Dict[str, Any]]:
+
         """Run the web search tool asynchronously."""
-        # For simplicity, we'll call the sync version
+        
         return self._run(query, num_results)
 
 class MovieInfoSearchTool(BaseTool):
+
     """Tool for searching specific movie or TV show information."""
+
     name: str = "movie_info_search"
     description: str = "Search for specific information about a movie or TV show (title, year, rating, etc.)."
     args_schema: Type[BaseModel] = WebSearchInput
     
     def _run(self, query: str, num_results: int = 3) -> Dict[str, Any]:
+
         """Run the movie info search tool."""
-        import re
-        import requests
-        from bs4 import BeautifulSoup
         
         try:
             # First, search for the movie on DuckDuckGo to get IMDb link
@@ -87,7 +95,7 @@ class MovieInfoSearchTool(BaseTool):
                     })
                     break
             
-            # If we found an IMDb URL, scrape it for information
+            # If an IMDb URL is found, scrape it for information
             if imdb_url:
                 try:
                     # Get the IMDb page
@@ -170,9 +178,8 @@ class MovieInfoSearchTool(BaseTool):
                     # If scraping fails, add error to movie info
                     movie_info["scrape_error"] = str(e)
             
-            # If scraping failed or we couldn't find IMDb, use DuckDuckGo search
+            # If scraping failed use DuckDuckGo search
             if not movie_info["title"] or not movie_info["release_year"]:
-                # Enhance the query to get better movie-specific results
                 enhanced_query = f"{query} movie information IMDb rating release date"
                 
                 with DDGS() as ddgs:
@@ -230,5 +237,7 @@ class MovieInfoSearchTool(BaseTool):
             return {"error": f"Error during movie info search: {str(e)}"}
 
     async def _arun(self, query: str, num_results: int = 3) -> Dict[str, Any]:
+
         """Run the movie info search tool asynchronously."""
+
         return self._run(query, num_results)

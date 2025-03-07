@@ -1,27 +1,33 @@
 """
 YouTube search tool for finding videos and trailers.
 """
-import os
+import re
+import requests
+
+from urllib.parse import quote_plus
 from typing import List, Dict, Any, Optional, Type
 from pydantic import BaseModel, Field
-from pydantic import BaseModel, Field
-
 from langchain.tools.base import BaseTool
-from youtubesearchpython import VideosSearch
 
 class YouTubeSearchInput(BaseModel):
+
     """Input for YouTube search."""
+
     query: str = Field(..., description="The search query to use.")
     num_results: int = Field(1, description="Number of search results to return.")
 
 class YouTubeSearchTool(BaseTool):
+
     """Tool for searching videos on YouTube."""
+
     name: str = "youtube_search"
     description: str = "Search for videos on YouTube based on a query."
     args_schema: Type[BaseModel] = YouTubeSearchInput
     
     def _run(self, query: str, num_results: int = 1) -> List[Dict[str, Any]]:
+
         """Run the YouTube search tool."""
+
         import re
         import requests
         from urllib.parse import quote_plus
@@ -76,21 +82,22 @@ class YouTubeSearchTool(BaseTool):
             return [{"error": f"Error during YouTube search: {str(e)}"}]
 
     async def _arun(self, query: str, num_results: int = 1) -> List[Dict[str, Any]]:
+
         """Run the YouTube search tool asynchronously."""
-        # For simplicity, we'll call the sync version
+        
         return self._run(query, num_results)
 
 class MovieTrailerSearchTool(BaseTool):
+
     """Tool for finding movie trailers on YouTube."""
+
     name: str = "movie_trailer_search"
     description: str = "Search for trailers of specific movies or TV shows on YouTube."
     args_schema: Type[BaseModel] = YouTubeSearchInput
     
     def _run(self, query: str, num_results: int = 1) -> List[Dict[str, Any]]:
+
         """Run the movie trailer search tool."""
-        import re
-        import requests
-        from urllib.parse import quote_plus
         
         try:
             # Enhance the query to get better trailer results
@@ -147,5 +154,7 @@ class MovieTrailerSearchTool(BaseTool):
             return [{"error": f"Error during movie trailer search: {str(e)}"}]
 
     async def _arun(self, query: str, num_results: int = 1) -> List[Dict[str, Any]]:
+
         """Run the movie trailer search tool asynchronously."""
+
         return self._run(query, num_results)
